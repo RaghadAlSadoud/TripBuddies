@@ -30,4 +30,16 @@ Trip buddies app helps to gather the group together with a press of a button, th
 
 
 ## Screens
+![1](https://user-images.githubusercontent.com/92965765/198818437-b499320f-d5d1-4da0-8f17-9be4f4f7426e.PNG)
+
+![2](https://user-images.githubusercontent.com/92965765/198818443-54392cb5-a71e-449c-af96-c6385164fd9e.PNG)
+
+![3](https://user-images.githubusercontent.com/92965765/198818451-780b0ea4-8081-4520-828f-80f0835a236d.PNG)
+
+![4](https://user-images.githubusercontent.com/92965765/198818456-f816772c-181f-4b87-8326-022344da37a9.PNG)
+
+![5](https://user-images.githubusercontent.com/92965765/198818463-aa03f3e5-bd76-4fca-8919-927759b28dce.PNG)
+
+![6](https://user-images.githubusercontent.com/92965765/198818467-d8ed1c81-fc3a-4d36-8a23-3228a3020c43.PNG)
+
 
