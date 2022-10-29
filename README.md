@@ -26,5 +26,7 @@ Trip buddies app helps to gather the group together with a press of a button, th
 
 ## Folder Structure
 
+![strac](https://user-images.githubusercontent.com/92965765/198817797-b0620cea-7721-4663-a2f7-d796ca701db6.PNG)
+
 
 ## Screens
