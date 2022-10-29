@@ -1,13 +1,174 @@
-import React, { useState } from 'react';
-// import { View, Text } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { Platform, Alert } from 'react-native';
 import { VStack, HStack, Box, Button, Text, Image, Pressable } from 'native-base'
 import { Icon, SearchBar } from '@rneui/base'
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { useNavigation, DrawerActions } from '@react-navigation/native'
+import * as Notifications from 'expo-notifications';
+// import * as Device from 'expo-device';
+import { db } from '../../../firebaseConfig'
+import { updateDoc, getDoc, doc, getDocs, collection } from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import axios from 'axios'
+
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: false,
+        shouldSetBadge: false,
+    }),
+});
 
 const Home = () => {
     const navigation = useNavigation()
     const [search, setSearch] = useState("");
+
+    const [expoPushToken, setExpoPushToken] = useState('');
+    const [notification, setNotification] = useState(false);
+    const notificationListener = useRef();
+    const responseListener = useRef();
+
+    useEffect(() => {
+        registerForPushNotificationsAsync().then(token => {
+            setExpoPushToken(token)
+        });
+
+        notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+            setNotification(notification);
+        });
+
+        responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+            console.log(response);
+        });
+
+        return () => {
+            Notifications.removeNotificationSubscription(notificationListener.current);
+            Notifications.removeNotificationSubscription(responseListener.current);
+        };
+    }, []);
+
+    const sendPushNotification = async () => {
+        try {
+
+            const auth = getAuth();
+            const user = auth.currentUser;
+            const userRef = doc(db, "users", user.uid);
+            const usersRef = collection(db, "users");
+            const userProfile = await getDoc(userRef);
+            const buddies = await getDocs(usersRef);
+
+            let buddyTokens = []
+            buddies.forEach(doc => {
+                if (doc.data().expoPushToken !== userProfile.data().expoPushToken) {
+                    buddyTokens.push(doc.data().expoPushToken)
+                }
+            })
+
+            await axios.post('https://exp.host/--/api/v2/push/send', {
+                to: buddyTokens,
+                sound: "default",
+                title: `${userProfile.data().fullName} has started a new trip! 🗺️`,
+                body: `${userProfile.data().fullName} is looking for buddies to join the trip.`,
+            },
+                {
+                    Headers: {
+                        'host': 'exp.host',
+                        'accept': 'application/json',
+                        'accept-encoding': 'gzip, deflate',
+                        'content-type': 'application/json',
+                    }
+                }).then(() => {
+                    Alert.alert('Notification sent successfully!', 'A notification has been sent to your buddies to gather for your new trip.')
+                })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    // const schedulePushNotification = async () => {
+    //     await Notifications.scheduleNotificationAsync({
+    //         content: {
+    //             title: "Raghad has started a new trip! 🗺️",
+    //             body: 'Raghad is going to visit the pyramids and looking for buddies to join the trip.',
+    //             data: { data: 'goes here' },
+    //         },
+    //         trigger: { seconds: 2 },
+    //     });
+    // }
+
+    const registerForPushNotificationsAsync = async () => {
+
+        if (Platform.OS === 'android') {
+            await Notifications.setNotificationChannelAsync('default', {
+                name: 'default',
+                importance: Notifications.AndroidImportance.MAX,
+                vibrationPattern: [0, 250, 250, 250],
+                lightColor: '#FF231F7C',
+            });
+        }
+
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+        if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+        }
+        if (finalStatus !== 'granted') {
+            alert('Failed to get push token for push notification!');
+            return;
+        }
+        let token = (await Notifications.getExpoPushTokenAsync()).data;
+        console.log('token', token);
+
+        // SAVE TOKEN IN DB
+        const auth = getAuth();
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // console.log(user)
+                await updateDoc(doc(db, "users", user.uid), {
+                    expoPushToken: token,
+                });
+            } else {
+                console.log('user not found')
+            }
+        });
+
+
+        return token
+
+    }
+
+    // const registerForPushNotificationsAsync = async () => {
+    //     let token;
+
+    //     if (Platform.OS === 'android') {
+    //         await Notifications.setNotificationChannelAsync('default', {
+    //             name: 'default',
+    //             importance: Notifications.AndroidImportance.MAX,
+    //             vibrationPattern: [0, 250, 250, 250],
+    //             lightColor: '#FF231F7C',
+    //         });
+    //     }
+
+    //     if (Device.isDevice) {
+    //         const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    //         let finalStatus = existingStatus;
+    //         if (existingStatus !== 'granted') {
+    //             const { status } = await Notifications.requestPermissionsAsync();
+    //             finalStatus = status;
+    //         }
+    //         if (finalStatus !== 'granted') {
+    //             alert('Failed to get push token for push notification!');
+    //             return;
+    //         }
+    //         token = (await Notifications.getExpoPushTokenAsync()).data;
+    //         console.log(token);
+    //     } else {
+    //         // alert('Must use physical device for Push Notifications');
+    //     }
+
+    //     return token;
+    // }
 
     // BUDDIES LOCATION
     const [buddies, setBuddies] = useState([
@@ -75,6 +236,12 @@ const Home = () => {
 
                 </HStack>
 
+                <HStack w={'100%'} justifyContent='center' alignItems={'center'} position={'absolute'} bottom={5} zIndex={10}>
+                    <Pressable onPress={async () => sendPushNotification()} p={2} bgColor='cyan.600' borderRadius={50} w={50} h={50} alignItems='center' justifyContent={'center'}>
+                        <Text fontSize={22} color='white'>G</Text>
+                    </Pressable>
+
+                </HStack>
 
                 <MapView
                     showsUserLocation

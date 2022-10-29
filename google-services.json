@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1007730182417",
+    "project_id": "tripbuddies-1",
+    "storage_bucket": "tripbuddies-1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1007730182417:android:c4181d425d9209f53324b0",
+        "android_client_info": {
+          "package_name": "com.tripbuddies"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1007730182417-ojrfnu1hgj74bo01mg5ss0lqh2mceqp4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWc_6u1Ogs-TUWGAR3IHokybd3sVbyL_w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1007730182417-ojrfnu1hgj74bo01mg5ss0lqh2mceqp4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
