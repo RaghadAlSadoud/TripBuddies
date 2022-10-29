@@ -23,7 +23,7 @@ Trip buddies app helps to gather the group together with a press of a button, th
 - native-base 
 - rneui/themed
 - axios
--
+
 
 
 ## Folder Structure
