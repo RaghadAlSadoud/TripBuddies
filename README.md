@@ -20,6 +20,7 @@ Trip buddies app helps to gather the group together with a press of a button, th
 ## Libraries used
 
 - Drawer Navigator
+- native-base
 - native-base 
 - rneui/themed
 - axios
