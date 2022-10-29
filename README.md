@@ -14,6 +14,8 @@ Trip buddies app helps to gather the group together with a press of a button, th
 - React Native framework was used and used Expo to run the project
 - Visual Studio Code was used to write the code
 - fireBase for backend
+- Android Studios was the chosen IDE
+
 
 ## Libraries used
 
